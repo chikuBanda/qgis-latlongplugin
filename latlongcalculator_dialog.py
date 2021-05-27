@@ -43,12 +43,76 @@ class LatlongcalculatorDialog(QtWidgets.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-        #connect function to degree input that will be called on each change
+        #connect function to lat inputs that will be called on each change
         self.latDegreeSpinBox.valueChanged.connect(self.latDMStoDD)
+        self.latMinSpinBox.valueChanged.connect(self.latDMStoDD)
+        self.latSecondSpinBox.valueChanged.connect(self.latDMStoDD)
+        self.cmbLatH.currentTextChanged.connect(self.latDMStoDD)
 
-    def latDMStoDD():
+        # connect function to long inputs that will be called on each change
+        self.longDegreeSpinBox.valueChanged.connect(self.longDMStoDD)
+        self.longMinSpinBox.valueChanged.connect(self.longDMStoDD)
+        self.longSecondSpinBox.valueChanged.connect(self.longDMStoDD)
+        self.cmbLongH.currentTextChanged.connect(self.longDMStoDD)
+
+        self.spdLatDD.editingFinished.connect(self.latDDtoDMS)
+
+        self.spdLongDD.editingFinished.connect(self.longDDtoDMS)
+
+    def latDMStoDD(self):
         iDeg = self.latDegreeSpinBox.value()
+        iMin = self.latMinSpinBox.value()
+        iSec = self.latSecondSpinBox.value()
+        sHem = self.cmbLatH.currentText()
 
-        dDD = float(iDeg)
+        dDD = float(iDeg) + iMin/60 + iSec/3600
+        if sHem == "S":
+            dDD = dDD * -1
 
         self.spdLatDD.setValue(dDD)
+
+    def longDMStoDD(self):
+        iDeg = self.longDegreeSpinBox.value()
+        iMin = self.longMinSpinBox.value()
+        iSec = self.longSecondSpinBox.value()
+        sHem = self.cmbLongH.currentText()
+
+        dDD = float(iDeg) + iMin/60 + iSec/3600
+        if sHem == "W":
+            dDD = dDD * -1
+
+        self.spdLongDD.setValue(dDD)
+
+    def latDDtoDMS(self):
+        dDD = self.spdLatDD.value()
+
+        iDeg = int(dDD)
+        dMin = (dDD - iDeg) * 60
+        iMin = int(dMin)
+        dSec = (dMin - iMin) * 60
+
+        self.latDegreeSpinBox.setValue(abs(iDeg))
+        self.latMinSpinBox.setValue(abs(iMin))
+        self.latSecondSpinBox.setValue(abs(dSec))
+
+        if dDD < 0:
+            self.cmbLatH.setCurrentText("S")
+        else:
+            self.cmbLatH.setCurrentText("N")
+
+    def longDDtoDMS(self):
+        dDD = self.spdLongDD.value()
+
+        iDeg = int(dDD)
+        dMin = (dDD - iDeg) * 60
+        iMin = int(dMin)
+        dSec = (dMin - iMin) * 60
+
+        self.longDegreeSpinBox.setValue(abs(iDeg))
+        self.longMinSpinBox.setValue(abs(iMin))
+        self.longSecondSpinBox.setValue(abs(dSec))
+
+        if dDD < 0:
+            self.cmbLongH.setCurrentText("W")
+        else:
+            self.cmbLongH.setCurrentText("E")
